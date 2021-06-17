@@ -98,25 +98,13 @@ def eval(net, dataset, save_dir=None):
             with torch.no_grad():
                 net.forward(input, truth_bboxes, truth_labels)
 
-            rpns = net.rpn_proposals.cpu().numpy()
-            detections = net.detections.cpu().numpy()
-            ensembles = net.ensemble_proposals.cpu().numpy()
+            detections = net.rpn_proposals.cpu().numpy()
 
-            print('rpn', rpns.shape)
-            print('detection', detections.shape)
-            print('ensemble', ensembles.shape)
-
-            if len(rpns):
-                rpns = rpns[:, 1:]
-                np.save(os.path.join(save_dir, '%s_rpns.npy' % (pid)), rpns)
+            print('detections', detections.shape)
 
             if len(detections):
                 detections = detections[:, 1:-1]
-                np.save(os.path.join(save_dir, '%s_rcnns.npy' % (pid)), detections)
-
-            if len(ensembles):
-                ensembles = ensembles[:, 1:]
-                np.save(os.path.join(save_dir, '%s_ensembles.npy' % (pid)), ensembles)
+                np.save(os.path.join(save_dir, '%s_detections.npy' % (pid)), detections)
 
             # Clear gpu memory
             del input, truth_bboxes, truth_labels
@@ -130,67 +118,31 @@ def eval(net, dataset, save_dir=None):
             return
     
     # Generate prediction csv for the use of performning FROC analysis
-    # Save both rpn and rcnn results
-    rpn_res = []
-    rcnn_res = []
-    ensemble_res = []
+    res = []
     for pid in dataset.dataset.filenames:
-        if os.path.exists(os.path.join(save_dir, '%s_rpns.npy' % (pid))):
-            rpns = np.load(os.path.join(save_dir, '%s_rpns.npy' % (pid)))
-            rpns = rpns[:, [3, 2, 1, 4, 0]]
-            names = np.array([[pid]] * len(rpns))
-            rpn_res.append(np.concatenate([names, rpns], axis=1))
-
-        if os.path.exists(os.path.join(save_dir, '%s_rcnns.npy' % (pid))):
-            rcnns = np.load(os.path.join(save_dir, '%s_rcnns.npy' % (pid)))
-            rcnns = rcnns[:, [3, 2, 1, 4, 0]]
-            names = np.array([[pid]] * len(rcnns))
-            rcnn_res.append(np.concatenate([names, rcnns], axis=1))
-
-        if os.path.exists(os.path.join(save_dir, '%s_ensembles.npy' % (pid))):
-            ensembles = np.load(os.path.join(save_dir, '%s_ensembles.npy' % (pid)))
-            ensembles = ensembles[:, [3, 2, 1, 4, 0]]
-            names = np.array([[pid]] * len(ensembles))
-            ensemble_res.append(np.concatenate([names, ensembles], axis=1))
+        if os.path.exists(os.path.join(save_dir, '%s_detections.npy' % (pid))):
+            detections = np.load(os.path.join(save_dir, '%s_detections.npy' % (pid)))
+            detections = detections[:, [3, 2, 1, 4, 0]]
+            names = np.array([[pid]] * len(detections))
+            res.append(np.concatenate([names, detections], axis=1))
     
-    rpn_res = np.concatenate(rpn_res, axis=0)
-    rcnn_res = np.concatenate(rcnn_res, axis=0)
-    ensemble_res = np.concatenate(ensemble_res, axis=0)
+    res = np.concatenate(res, axis=0)
     col_names = ['pid','center_x','center_y','center_z','diameter', 'probability']
     eval_dir = os.path.join(save_dir, 'FROC')
-    rpn_submission_path = os.path.join(eval_dir, 'submission_rpn.csv')
-    rcnn_submission_path = os.path.join(eval_dir, 'submission_rcnn.csv')
-    ensemble_submission_path = os.path.join(eval_dir, 'submission_ensemble.csv')
+    res_path = os.path.join(eval_dir, 'results.csv')
     
-    df = pd.DataFrame(rpn_res, columns=col_names)
-    df.to_csv(rpn_submission_path, index=False)
-
-    df = pd.DataFrame(rcnn_res, columns=col_names)
-    df.to_csv(rcnn_submission_path, index=False)
-
-    df = pd.DataFrame(ensemble_res, columns=col_names)
-    df.to_csv(ensemble_submission_path, index=False)
+    df = pd.DataFrame(res, columns=col_names)
+    df.to_csv(res_path, index=False)
 
     # Start evaluating
-    if not os.path.exists(os.path.join(eval_dir, 'rpn')):
-        os.makedirs(os.path.join(eval_dir, 'rpn'))
-    if not os.path.exists(os.path.join(eval_dir, 'rcnn')):
-        os.makedirs(os.path.join(eval_dir, 'rcnn'))
-    if not os.path.exists(os.path.join(eval_dir, 'ensemble')):
-        os.makedirs(os.path.join(eval_dir, 'ensemble'))
+    if not os.path.exists(os.path.join(eval_dir, 'res')):
+        os.makedirs(os.path.join(eval_dir, 'res'))
 
     annotations_filename = '/home/media/ssd/process_zoom/split_full_with_nodule_9classes/test_anno_center.csv'
     # test_anno_center.csv is a csv file with 'center_x','center_y','center_z', and 'diameter'. You can obtain these parameters by using 'xmin', 'xmax', etc.
     val_path = '/home/media/ssd/process_zoom/split_full_with_nodule_9classes/test.txt'
 
-    noduleCADEvaluation(annotations_filename,
-    rpn_submission_path, val_path, os.path.join(eval_dir, 'rpn'))
-
-    noduleCADEvaluation(annotations_filename,
-    rcnn_submission_path, val_path, os.path.join(eval_dir, 'rcnn'))
-
-    noduleCADEvaluation(annotations_filename,
-    ensemble_submission_path, val_path, os.path.join(eval_dir, 'ensemble'))
+    noduleCADEvaluation(annotations_filename, res_path, val_path, os.path.join(eval_dir, 'res'))
 
 if __name__ == '__main__':
     main()
