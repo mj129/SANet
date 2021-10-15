@@ -115,7 +115,7 @@ class FeatureNet(nn.Module):
         out2 = self.reduce3(out2)
         comb2 = self.back2(torch.cat((rev2, out2), 1))
 
-        return [x, out1, comb2], out1
+        return [x1, out1, comb2], out1
 
 class RpnHead(nn.Module):
     def __init__(self, config, in_channels=128):
@@ -294,7 +294,7 @@ class CropRoi(nn.Module):
             nn.InstanceNorm3d(64, momentum=bn_momentum, affine=affine),
             nn.ReLU(inplace=True))
         self.back3 = nn.Sequential(
-            nn.Conv3d(65, 64, kernel_size=3, padding=1),
+            nn.Conv3d(128, 64, kernel_size=3, padding=1),
             nn.InstanceNorm3d(64, momentum=bn_momentum, affine=affine),
             nn.ReLU(inplace=True))
 
@@ -331,8 +331,8 @@ class CropRoi(nn.Module):
             fe2 = self.back2(torch.cat((fe1_up, out1[b, :, z_start / 2:z_end / 2, y_start / 2:y_end / 2, x_start / 2:x_end / 2].unsqueeze(0)), 1))
             # fe2_up = self.up3(fe2)
 
-            # im = img[b, :, z_start:z_end, y_start:y_end, x_start:x_end].unsqueeze(0)
-            # up3 = self.back3(torch.cat((fe2_up, im), 1))
+            # im = img[b, :, z_start / 2:z_end / 2, y_start / 2:y_end / 2, x_start / 2:x_end / 2].unsqueeze(0)
+            # up3 = self.back3(torch.cat((fe2, im), 1))
             # crop = up3.squeeze()
 
             crop = fe2.squeeze()
