@@ -294,7 +294,7 @@ class CropRoi(nn.Module):
             nn.InstanceNorm3d(64, momentum=bn_momentum, affine=affine),
             nn.ReLU(inplace=True))
         self.back3 = nn.Sequential(
-            nn.Conv3d(128, 64, kernel_size=3, padding=1),
+            nn.Conv3d(65, 64, kernel_size=3, padding=1),
             nn.InstanceNorm3d(64, momentum=bn_momentum, affine=affine),
             nn.ReLU(inplace=True))
 
