@@ -309,6 +309,7 @@ class CropRoi(nn.Module):
         crops = []
         for p in proposals:
             b, z_start, y_start, x_start, z_end, y_end, x_end = p
+            b, z_start, y_start, x_start, z_end, y_end, x_end = (i.cpu().item() for i in (b, z_start, y_start, x_start, z_end, y_end, x_end))
 
             # Slice 0 dim, should never happen
             c0 = np.array([z_start, y_start, x_start])
@@ -325,10 +326,10 @@ class CropRoi(nn.Module):
                 print('c0:', c0, ', c1:', c1)
             z_end, y_end, x_end = c1
 
-            fe1 = comb2[b, :, z_start / 4:z_end / 4, y_start / 4:y_end / 4, x_start / 4:x_end / 4].unsqueeze(0)
+            fe1 = comb2[b, :, z_start // 4:z_end // 4, y_start // 4:y_end // 4, x_start // 4:x_end // 4].unsqueeze(0)
             fe1_up = self.up2(fe1)
 
-            fe2 = self.back2(torch.cat((fe1_up, out1[b, :, z_start / 2:z_end / 2, y_start / 2:y_end / 2, x_start / 2:x_end / 2].unsqueeze(0)), 1))
+            fe2 = self.back2(torch.cat((fe1_up, out1[b, :, z_start // 2:z_end // 2, y_start // 2:y_end // 2, x_start // 2:x_end // 2].unsqueeze(0)), 1))
             # fe2_up = self.up3(fe2)
 
             # im = img[b, :, z_start / 2:z_end / 2, y_start / 2:y_end / 2, x_start / 2:x_end / 2].unsqueeze(0)
