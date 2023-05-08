@@ -5,9 +5,9 @@
 
 int cpu_overlap(at::Tensor * boxes1, at::Tensor * boxes2, at::Tensor * overlap) {
     // Check tensor is contiguous and dimension is correct
-    AT_CHECK(boxes1->is_contiguous(), "argument#1(boxes1) must be contiguous");
-    AT_CHECK(boxes2->is_contiguous(), "argument#2(boxes2) must be contiguous");
-    AT_CHECK(overlap->is_contiguous(), "argument#3(overlap) must be contiguous");
+    TORCH_CHECK(boxes1->is_contiguous(), "argument#1(boxes1) must be contiguous");
+    TORCH_CHECK(boxes2->is_contiguous(), "argument#2(boxes2) must be contiguous");
+    TORCH_CHECK(overlap->is_contiguous(), "argument#3(overlap) must be contiguous");
 
 
     // Number of ROIs

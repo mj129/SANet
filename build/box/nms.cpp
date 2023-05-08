@@ -4,10 +4,10 @@
 
 int cpu_nms(at::Tensor * keep_out, at::Tensor * num_out, at::Tensor * boxes, at::Tensor * order, at::Tensor * areas, float nms_overlap_thresh) {
     // boxes has to be sorted
-    AT_CHECK(keep_out->is_contiguous(), "argument#1(keep_out) must be contiguous");
-    AT_CHECK(order->is_contiguous(), "argument#4(order) must be contiguous");
-    AT_CHECK(boxes->is_contiguous(), "argument#3(boxes) must be contiguous");
-    AT_CHECK(areas->is_contiguous(), "argument#5(areas) must be contiguous");
+    TORCH_CHECK(keep_out->is_contiguous(), "argument#1(keep_out) must be contiguous");
+    TORCH_CHECK(order->is_contiguous(), "argument#4(order) must be contiguous");
+    TORCH_CHECK(boxes->is_contiguous(), "argument#3(boxes) must be contiguous");
+    TORCH_CHECK(areas->is_contiguous(), "argument#5(areas) must be contiguous");
 
     // Number of ROIs
     long boxes_num = boxes->sizes()[0];
