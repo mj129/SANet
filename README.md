@@ -52,7 +52,14 @@ python setup.py install
 
 ### Data
 
-Our new pulmonary nodule dataset PN9 is available now, please refer to [here](https://jiemei.xyz/publications/SANet) for more information.
+Our new pulmonary nodule dataset PN9 is available now.
+
+#### PN9 dataset in .npy files, 227.2GB: 
+      [Baidu Yunpan](https://pan.baidu.com/s/1u85i_gVc4Nbwu9LZ4EwKQw), Password: pn91
+      To uncompress the npy files, you can use the command (cat train.* > train.tar.gz,  tar xvzf train.tar.gz).
+#### PN9 dataset in .jpg images, 51.2GB: 
+      [Baidu Yunpan](https://pan.baidu.com/s/1vjEPpjD9zGE7KDM5tx2P7w), Password: pn92
+      
 
 **Note**: Considering the big size of raw data, we provide the PN9 dataset (after preprocessing as described in Sec. 5.2 of our paper) with two formats: .npy files and .jpg images. 
     The data preprocessing contains spatially normalized (including the imaging thickness and spacing, the normalized data is 1mm x 1mm x 1mm.) and transforming the data into [0, 255].
